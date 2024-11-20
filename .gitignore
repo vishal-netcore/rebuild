@@ -164,3 +164,4 @@ cython_debug/
 # Manually added
 ignored/
 .idea/
+configs/
