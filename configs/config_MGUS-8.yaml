@@ -1,0 +1,59 @@
+log_path: "logs/rebuild.log"
+cluster: MGUS-8
+shard: 
+  A:
+    host1: 
+      hostname: nc-mgus-8-a1.netcore.in:27017
+      ip: 172.30.28.84
+      server_hardware_configuration: LOW
+      storage_path: /database/mongodata
+      service_name: mongod
+      credentials:
+        username: admin
+        password: admin
+    host2: 
+      hostname: nc-mgus-8-a2.netcore.in:27017
+      ip: 172.30.29.183
+      server_hardware_configuration: LOW
+      storage_path: /database/mongodata
+      service_name: mongod
+      credentials:
+        username: admin
+        password: admin
+    host3: 
+      hostname: nc-mgus-8-a3.netcore.in:27017
+      ip: 172.30.28.130
+      server_hardware_configuration: LOW
+      storage_path: /database/mongodata
+      service_name: mongod
+      credentials:
+        username: admin
+        password: admin
+  B:
+    host1: 
+      hostname: nc-mgus-8-b1.netcore.in:27017
+      ip: 172.30.28.165
+      server_hardware_configuration: LOW
+      storage_path: /database/mongodata
+      service_name: mongod
+      credentials:
+        username: admin
+        password: admin
+    host2: 
+      hostname: nc-mgus-8-b2.netcore.in:27017
+      ip: 172.30.28.132
+      server_hardware_configuration: LOW
+      storage_path: /database/mongodata
+      service_name: mongod
+      credentials:
+        username: admin
+        password: admin
+    host3: 
+      hostname: nc-mgus-8-b3.netcore.in:27017
+      ip: 172.30.30.129
+      server_hardware_configuration: LOW
+      storage_path: /database/mongodata
+      service_name: mongod
+      credentials:
+        username: admin
+        password: admin
