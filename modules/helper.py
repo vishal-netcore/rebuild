@@ -37,9 +37,9 @@ def get_id_by_server_name(servers, target_server):
 
 def execute_shell_command(servers, p_command, hostname):
     ip=servers[hostname]['ip']
-    command = ["sshpass -p 'qwerasdf'", 'ssh', f'{ip}']
-    command = command + p_command
-    print(command)
+    password = 'qwerasdf'
+    command = ["sshpass", f"-p {password}", "ssh", f"{ip}"] + p_command
+    print(f"Running command: {' '.join(command)}")
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print('result', result.stdout)
     return result.stdout
