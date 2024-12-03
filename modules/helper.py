@@ -39,6 +39,7 @@ def execute_shell_command(servers, p_command, hostname):
     ip=servers[hostname]['ip']
     command = ['sshpass', '-p', "'qwerasdf'" 'ssh', f'{ip}']
     command = command + p_command
+    print(command)
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print('result', result.stdout)
     return result.stdout
