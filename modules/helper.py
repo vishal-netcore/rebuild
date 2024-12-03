@@ -37,7 +37,8 @@ def get_id_by_server_name(servers, target_server):
 
 def execute_shell_command(servers, p_command, hostname):
     ip=servers[hostname]['ip']
-    command = ['ssh', f'{ip}']
+    print('ip', ip)
+    command = ['sshpass', '-p', "'qwerasdf'" 'ssh', f'{ip}']
     command = command + p_command
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return result.stdout
@@ -69,8 +70,8 @@ def get_max_disk_used_server(servers):
             path = info["storage_path"]
             command.append(path)
 
-            # utilization_string = execute_shell_command(servers, command, server)
-            utilization_string = execute_docker_command(servers[server]['ip'], command)
+            utilization_string = execute_shell_command(servers, command, server)
+            # utilization_string = execute_docker_command(servers[server]['ip'], command)
             print(utilization_string)
             utilization_string = utilization_string.decode('utf-8')
             print(utilization_string)
