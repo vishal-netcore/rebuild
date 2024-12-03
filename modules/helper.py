@@ -63,7 +63,7 @@ def get_max_disk_used_server(servers):
         max_disk_space = float("-inf")
         
         command = ['du', '-sh']
-
+        print_dict(servers)
         server_disk_used_map = {}
 
         for server, info in servers.items():
