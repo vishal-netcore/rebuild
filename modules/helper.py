@@ -39,13 +39,7 @@ def execute_shell_command(servers, p_command, hostname):
     ip=servers[hostname]['ip']
     password = 'qwerasdf'
     command = ["sshpass", f"-p {password}", "ssh", f"{ip}"] + p_command
-    print(f"Running command: {' '.join(command)}")
     result = subprocess.run(' '.join(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
-    if result.returncode == 0:
-        print('Success:', result.stdout)
-    else:
-        print('Error:', result.stderr)
-    print('result', result.stdout)
     return result.stdout
 
 
@@ -75,7 +69,7 @@ def get_max_disk_used_server(servers):
             path = info["storage_path"]
             command.append(path)
             utilization_string = execute_shell_command(servers, command, server)
-            print('utilization_string', utilization_string)
+            print('utilization_string', utilization_string, type(utilization_string))
             # utilization_string = execute_docker_command(servers[server]['ip'], command)
             utilization_string = utilization_string.decode('utf-8')
             utilization = convert_to_gb(utilization_string.split('\t')[0])

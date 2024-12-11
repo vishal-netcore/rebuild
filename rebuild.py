@@ -3,7 +3,6 @@ from modules.config import servers
 from modules import helper
 
 def test():
-    print('working...')
     logger.info("Init")
     # helper.print_dict(servers)
 
