@@ -74,7 +74,6 @@ def get_max_disk_used_server(servers):
             # utilization_string = utilization_string.decode('utf-8')
             utilization = convert_to_gb(utilization_string.split('\t')[0])
             print('utilization', utilization)
-            return
             server_disk_used_map[server] = utilization
 
             if utilization > max_disk_space:
