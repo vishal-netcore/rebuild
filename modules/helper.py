@@ -69,7 +69,6 @@ def get_max_disk_used_server(servers):
             path = info["storage_path"]
             command.append(path)
             utilization_string = execute_shell_command(servers, command, server)
-            print('utilization_string', utilization_string, type(utilization_string))
             # utilization_string = execute_docker_command(servers[server]['ip'], command)
             # utilization_string = utilization_string.decode('utf-8')
             utilization = convert_to_gb(utilization_string.split('\t')[0])
