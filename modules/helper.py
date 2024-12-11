@@ -40,7 +40,7 @@ def execute_shell_command(servers, p_command, hostname):
     password = 'qwerasdf'
     command = ["sshpass", f"-p {password}", "ssh", f"{ip}"] + p_command
     print(f"Running command: {' '.join(command)}")
-    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+    result = subprocess.run(' '.join(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
     if result.returncode == 0:
         print('Success:', result.stdout)
     else:
