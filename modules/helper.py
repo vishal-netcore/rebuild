@@ -65,7 +65,6 @@ def get_max_disk_used_server(servers):
         server_disk_used_map = {}
 
         for server, info in servers.items():
-            print(server)
             path = info["storage_path"]
             command.append(path)
             utilization_string = execute_shell_command(servers, command, server)
