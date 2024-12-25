@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 import fcntl
 import sys
 
-
 def print_dict(d, indent=0):
     for key, value in d.items():
         if isinstance(value, dict):
@@ -332,7 +331,7 @@ def preprocessing(folder_path=f"{config_data['log_path']}"):
 
     return server_name
 
-
+## new and refactored below.
 def check_if_rebuild_is_complete(lock_file):
     try:
         with open(lock_file, 'w') as lf:
@@ -376,3 +375,36 @@ def get_last_rebuilt_server(rebuild_status_file):
 
     logger.info(f"Last rebuilt server: {last_rebuilt_server}")
     return last_rebuilt_server
+
+
+def check_replication_lag_of_previously_build_server(last_rebuilt_server):
+    """
+    return a bool variable indicating whether to proceed with the rebuild not.
+    """
+    try:
+        if last_rebuilt_server == '':
+            logger.info(f"No last rebuilt server exists, proceeding.")
+            return True
+
+        # check if last rebuilt server is in STARTUP2 state
+        # HARDCODED username and password
+        tmp_client = connect(username, password, host, port, is_direct_connection=False) #(f'mongodb://root:root@{last_rebuilt_server}')
+        replica_set_status = tmp_client.admin.command("replSetGetStatus")
+        members = replica_set_status["members"]
+
+        for member in members:
+            if member['stateStr'] == 'STARTUP2':
+                # print(f'last_rebuilt_server {last_rebuilt_server} is in STARTUP2 state, exiting...')
+                logger.info(f'Last rebuilt server {last_rebuilt_server} is in "STARTUP2" state, exiting...')
+                exit(1)
+    except Exception as e:
+        logger.error(f"Error while checking replication lag of previously rebuilt server: {e}")
+        exit(1)
+
+    res = check_replication_lag_of_shard(last_rebuilt_server)
+    if res == True:
+        logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is zero, proceeding...')
+        return True
+    else:
+        logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is not zero, exiting...')
+        exit(1)
