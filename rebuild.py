@@ -9,6 +9,11 @@ def test():
     server_disk_used_map = helper.get_max_disk_used_server(servers)
     print(server_disk_used_map)
 
+    last_rebuild_server = helper.preprocessing()
+
+    print('last_rebuild_server', last_rebuild_server)
+    print()
+
 def main():
     pass
 
