@@ -5,7 +5,9 @@ from datetime import datetime
 def load_path():
     with open("configs/config.yaml", "r") as file:
         config = yaml.safe_load(file)
-    return config.get("log_path", "/logs/rebuild.log")
+        log_path = config.get("log_path", "/logs/rebuild.log")
+        print('logpath', log_path)
+        return log_path
 
 logging.basicConfig(
     filename=load_path() + "_" + str(datetime.now()) + ".log",
