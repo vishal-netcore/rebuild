@@ -4,10 +4,9 @@ from modules import helper
 from modules import config
 
 def test():
-    print(config.config_data)
+    helper.print_dict(servers)
     return
     logger.info("Init")
-    # helper.print_dict(servers)
 
     # check if previous rebuild is complete, if not exit this process.
     helper.check_if_rebuild_is_complete(config.config_data['lock_file'])
