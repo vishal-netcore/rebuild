@@ -33,12 +33,6 @@ def convert_to_gb(size_str):
         return size * 1024
 
 
-def get_id_by_server_name(servers, target_server):
-    for key, val in servers.items():
-        if target_server in key:
-            return val['_id']
-
-
 def execute_shell_command(servers, p_command, hostname):
     ip = servers[hostname]['ip']
     password = 'qwerasdf'
@@ -421,5 +415,11 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
     else:
         logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is not zero, terminating...')
         exit(1)
+
+
+def get_id_by_server_name(servers, target_server):
+    for key, val in servers.items():
+        if target_server in key:
+            return val['_id']
 
 

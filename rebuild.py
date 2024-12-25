@@ -42,8 +42,8 @@ def test():
     port = int(max_disk_used_server.split(':')[1])
 
     client = mongo.connect(username, password, host, port)
-
-    print(client)
+    max_disk_used_server_id = helper.get_id_by_server_name(max_disk_used_server)
+    print('max_disk_used_server_id', max_disk_used_server_id)
 
 
 def main():
