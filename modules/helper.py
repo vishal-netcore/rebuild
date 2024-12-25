@@ -283,7 +283,7 @@ def delete_directory(servers, max_disk_used_server): # args : server_ip/id
 def preprocessing(folder_path=f"{config_data['log_path']}"):
     try:
         current_date = datetime.now()
-
+        print('folder_path', folder_path)
         files = os.listdir(folder_path)
 
         valid_files = [file for file in files if '-' in file]
