@@ -8,7 +8,5 @@ def connect(username, password, host, port, is_direct_connection=False):
         client = MongoClient(mongodb_uri)
     except Exception as e:
         logger.fatal("Failed to connect to MongoDB", e)
-    
-    logger.info(f"Connected to {host}:{port}")
 
     return client
