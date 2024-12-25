@@ -4,7 +4,8 @@ from modules import helper
 from modules import config
 
 def test():
-    # helper.print_dict(servers)
+    helper.print_dict(servers)
+    return
     logger.info("Init")
 
     # check if previous rebuild is complete, if not exit this process.
