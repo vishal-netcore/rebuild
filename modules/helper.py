@@ -419,6 +419,9 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
 
 def get_id_by_server_name(servers, target_server):
     for key, val in servers.items():
+        print(key)
+        print(val)
+        print()
         if target_server in key:
             return val['_id']
 
