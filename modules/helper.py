@@ -3,8 +3,12 @@ from .logger import logger
 from .mongo import connect
 from .config import shards, config_data
 import time
-import os 
+import os
+import gzip
 from datetime import datetime, timedelta
+import fcntl
+import sys
+
 
 def print_dict(d, indent=0):
     for key, value in d.items():
@@ -36,7 +40,7 @@ def get_id_by_server_name(servers, target_server):
 
 
 def execute_shell_command(servers, p_command, hostname):
-    ip=servers[hostname]['ip']
+    ip = servers[hostname]['ip']
     password = 'qwerasdf'
     command = ["sshpass", f"-p {password}", "ssh", f"{ip}"] + p_command
     result = subprocess.run(' '.join(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
@@ -60,7 +64,7 @@ def execute_docker_command(container_name, p_command):
 def get_max_disk_used_server(servers):
     try:
         max_disk_space = float("-inf")
-        
+
         command = ['du', '-sh']
         server_disk_used_map = {}
 
@@ -75,10 +79,10 @@ def get_max_disk_used_server(servers):
 
             if utilization > max_disk_space:
                 max_disk_space = utilization
-            
+
             command.pop(-1)
 
-        server_disk_used_map = dict(sorted(server_disk_used_map.items(), key=lambda x: x[1], reverse=True))    
+        server_disk_used_map = dict(sorted(server_disk_used_map.items(), key=lambda x: x[1], reverse=True))
     except Exception as e:
         logger.error(f"Error while getting max disk used server: {e}")
         exit(1)
@@ -96,13 +100,13 @@ def check_replication_lag_of_shard(mongo_host):
         tmp_client = connect(username, password, host, port, False)
         # tmp_client = MongoClient(f'mongodb://root:jazzychess342@{mongo_host}')
         replica_set_status = tmp_client.admin.command("replSetGetStatus")
-        
+
         primary_optime = None
         for member in replica_set_status["members"]:
             if member["stateStr"] == "PRIMARY":
                 primary_optime = member["optimeDate"]
                 break
-        
+
         for member in replica_set_status["members"]:
             if member["stateStr"] == "SECONDARY":
                 secondary_optime = member["optimeDate"]
@@ -128,13 +132,13 @@ def check_replication_lag_across_cluster(servers):
             tmp_client = connect(username, password, pss_list[0], port, False)
             # tmp_client = MongoClient(f'mongodb://root:jazzychess342@{pss_list[0]}')
             replica_set_status = tmp_client.admin.command("replSetGetStatus")
-            
+
             primary_optime = None
             for member in replica_set_status["members"]:
                 if member["stateStr"] == "PRIMARY":
                     primary_optime = member["optimeDate"]
                     break
-            
+
             for member in replica_set_status["members"]:
                 if member["stateStr"] == "SECONDARY":
                     secondary_optime = member["optimeDate"]
@@ -148,7 +152,7 @@ def check_replication_lag_across_cluster(servers):
     return True
 
 
-def swap_priority(client, target_id): #target_id(server which needs to rebuilt/server having max disk usase)
+def swap_priority(client, target_id):  #target_id(server which needs to rebuilt/server having max disk usase)
     '''
     get the member with lowest priority
     and swap priority with it
@@ -171,8 +175,9 @@ def swap_priority(client, target_id): #target_id(server which needs to rebuilt/s
                 lowest_priority_member = member
             if member['_id'] == target_id:
                 target_member = member
-        
-        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], lowest_priority_member['priority'] 
+
+        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
+        lowest_priority_member['priority']
         logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
 
         # for member in config_members:
@@ -224,9 +229,9 @@ def resize_oplog(client, max_disk_used_server, oplog_size=400000.0):
     except Exception as e:
         logger.error(f"Error while resizing oplog from {max_disk_used_server}: {e}")
         exit(1)
-    
 
-def set_sync_from(servers, max_disk_used_server):# args: 
+
+def set_sync_from(servers, max_disk_used_server):  # args:
     '''
     execute from re-built server
     looks for secondary server and sets sync from
@@ -239,9 +244,10 @@ def set_sync_from(servers, max_disk_used_server):# args:
             if servers[max_disk_used_server]['syncSourceHost'] != '':
                 if servers[servers[max_disk_used_server]['syncSourceHost']]['stateStr'] == 'PRIMARY':
                     primary_server = servers[servers[max_disk_used_server]['syncSourceHost']]['name']
-            
+
                     for server, info in servers.items():
-                        if server != max_disk_used_server and (info['syncSourceHost'] == primary_server or info['syncSourceHost'] == max_disk_used_server):
+                        if server != max_disk_used_server and (info['syncSourceHost'] == primary_server or info[
+                            'syncSourceHost'] == max_disk_used_server):
                             # print(server)
                             tmp_client.admin.command('replSetSyncFrom', server)
                             logger.info(f'Setting sync source for {max_disk_used_server} to {server}.')
@@ -261,12 +267,16 @@ def set_sync_from(servers, max_disk_used_server):# args:
         exit(1)
 
 
-def delete_directory(servers, max_disk_used_server): # args : server_ip/id
+def delete_directory(servers, max_disk_used_server):  # args : server_ip/id
     # also verify it
     try:
-        res = execute_shell_command(['sudo', 'rm', '-rf', f'{servers[max_disk_used_server]["storage_path"]}'], max_disk_used_server)
-        res = execute_shell_command(['sudo', 'mkdir', f'{servers[max_disk_used_server]["storage_path"]}'], max_disk_used_server)
-        res = execute_shell_command(['sudo', 'chown', '-R', 'mongod:mongod', f'{servers[max_disk_used_server]["storage_path"]}'], max_disk_used_server)
+        res = execute_shell_command(['sudo', 'rm', '-rf', f'{servers[max_disk_used_server]["storage_path"]}'],
+                                    max_disk_used_server)
+        res = execute_shell_command(['sudo', 'mkdir', f'{servers[max_disk_used_server]["storage_path"]}'],
+                                    max_disk_used_server)
+        res = execute_shell_command(
+            ['sudo', 'chown', '-R', 'mongod:mongod', f'{servers[max_disk_used_server]["storage_path"]}'],
+            max_disk_used_server)
     except Exception as e:
         logger.error(f'error while deleting directory {servers[max_disk_used_server]["storage_path"]}, {e}')
         # print(f'error while deleting directory {servers[max_disk_used_server]["storage_path"]}, {e}')
@@ -283,7 +293,7 @@ def delete_directory(servers, max_disk_used_server): # args : server_ip/id
 def preprocessing(folder_path=f"{config_data['log_path']}"):
     try:
         current_date = datetime.now()
-        print('folder_path', folder_path)
+
         files = os.listdir(folder_path)
 
         valid_files = [file for file in files if '-' in file]
@@ -321,3 +331,48 @@ def preprocessing(folder_path=f"{config_data['log_path']}"):
         exit(1)
 
     return server_name
+
+
+def check_if_rebuild_is_complete(lock_file):
+    try:
+        with open(lock_file, 'w') as lf:
+            fcntl.flock(lf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            logger.info(f"Previous rebuild is complete, string new rebuild.")
+            return
+
+    except IOError:
+        logger.info(f"Previous rebuild process is running. Exiting.")
+        sys.exit(0)
+
+
+def get_last_rebuilt_server(rebuild_status_file):
+    # if file does not exist create the file.
+    if not os.path.exists(rebuild_status_file):
+        logger.info(f"{rebuild_status_file} does not exists, creating new file.")
+        with open(rebuild_status_file, 'w') as _:
+            return None
+
+    # get the last rebuilt server
+    last_rebuilt_server = None
+    last_two_lines = []
+
+    with open(rebuild_status_file, 'r') as file:
+        lines = file.readlines()
+        if lines:
+            last_two_lines = lines[-2:]
+            _, server_name, status = lines[-1].strip().split("__")
+            if status == "completed":
+                last_rebuilt_server = server_name
+
+    # get size of the file, if more than 5mb take backup of the file compress it and delete the old file.
+    if os.path.getsize(rebuild_status_file) > 5 * 1024 * 1024:
+        logger.info(f"{rebuild_status_file} size has reached 5mb, taking backup and deleting.")
+        backup_name = f"{rebuild_status_file}_bkp_{datetime.now().strftime('%Y%m%d%H%M%S')}.gz"
+        with open(rebuild_status_file, 'rb') as f_in, gzip.open(backup_name, 'wb') as f_out:
+            f_out.writelines(f_in)
+        os.remove(rebuild_status_file)
+        with open(rebuild_status_file, 'w') as new_file:
+            new_file.writelines(last_two_lines)
+
+    logger.info(f"Last rebuilt server: {last_rebuilt_server}")
+    return last_rebuilt_server

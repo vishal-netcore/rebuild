@@ -7,14 +7,17 @@ def test():
     logger.info("Init")
     # helper.print_dict(servers)
 
-    server_disk_used_map = helper.get_max_disk_used_server(servers)
-    print(server_disk_used_map)
+    # check if previous rebuild is complete, if not exit this process.
+    helper.check_if_rebuild_is_complete(config.config_data['lock_file'])
 
-    print('path', config.config_data['log_path'])
-    last_rebuild_server = helper.preprocessing()
-
+    # get the last rebuilt server and check if op
+    last_rebuild_server = helper.get_last_rebuilt_server(config.config_data['rebuild_status_file'])
     print('last_rebuild_server', last_rebuild_server)
-    print()
+    return
+
+    server_disk_used_map = helper.get_max_disk_used_server(servers)
+    print('server_disk_used_map', server_disk_used_map)
+
 
 def main():
     pass
