@@ -351,7 +351,7 @@ def get_last_rebuilt_server(rebuild_status_file):
         logger.info(f"{rebuild_status_file} does not exists, creating new file.")
         with open(rebuild_status_file, 'w') as _:
             return None
-how t
+
     # get the last rebuilt server
     last_rebuilt_server = None
     last_two_lines = []
