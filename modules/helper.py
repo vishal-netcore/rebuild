@@ -390,11 +390,13 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
         # HARDCODED username and password
         username = servers[last_rebuilt_server]['username']
         password = servers[last_rebuilt_server]['password']
+        host = last_rebuilt_server.split(':')[0]
+        port = int(last_rebuilt_server.split(':')[1])
 
-        print(username, password)
+        print(host, port)
         return
 
-        tmp_client = connect(username, password, host, port, is_direct_connection=False) #(f'mongodb://root:root@{last_rebuilt_server}')
+        tmp_client = connect(username, password, host, port) #(f'mongodb://root:root@{last_rebuilt_server}')
         replica_set_status = tmp_client.admin.command("replSetGetStatus")
         members = replica_set_status["members"]
 
