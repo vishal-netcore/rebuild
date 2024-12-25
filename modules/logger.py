@@ -16,3 +16,4 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger()
+logging.getLogger("pymongo").setLevel(logging.WARNING)
