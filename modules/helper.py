@@ -377,7 +377,7 @@ def get_last_rebuilt_server(rebuild_status_file):
     return last_rebuilt_server
 
 
-def check_replication_lag_of_previously_build_server(last_rebuilt_server):
+def check_replication_lag_of_previously_build_server(last_rebuilt_server, servers):
     """
     return a bool variable indicating whether to proceed with the rebuild not.
     """
@@ -388,6 +388,12 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server):
 
         # check if last rebuilt server is in STARTUP2 state
         # HARDCODED username and password
+        username = servers['last_rebuilt_server']['username']
+        password = servers['last_rebuilt_server']['password']
+
+        print(username, password)
+        return
+
         tmp_client = connect(username, password, host, port, is_direct_connection=False) #(f'mongodb://root:root@{last_rebuilt_server}')
         replica_set_status = tmp_client.admin.command("replSetGetStatus")
         members = replica_set_status["members"]
