@@ -12,8 +12,8 @@ def test():
 
     # get the last rebuilt server and check if there is replication lag due to previous rebuild server,
     # if there is a lag exit else start rebuild.
-    last_rebuild_server = helper.get_last_rebuilt_server(config.config_data['rebuild_status_file'])
-    print('last_rebuild_server', last_rebuild_server, end="\n\n")
+    # last_rebuild_server = helper.get_last_rebuilt_server(config.config_data['rebuild_status_file'])
+    # print('last_rebuild_server', last_rebuild_server, end="\n\n")
 
     # HARDCODED last_rebuild_server
     last_rebuild_server = '192.168.50.168:27018' # shard 2 host 1
