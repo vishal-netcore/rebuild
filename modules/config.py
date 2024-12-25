@@ -23,6 +23,8 @@ def load_servers_info():
                 "service_name": host_data["service_name"],
                 "shard_name": shard_name,
                 "ip": host_data["ip"],
+                "username": host_data['credentials']['username'],
+                "password": host_data['credentials']['password'],
                 "cluster_name": cluster_name
             }
 

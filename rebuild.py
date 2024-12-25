@@ -4,8 +4,7 @@ from modules import helper
 from modules import config
 
 def test():
-    helper.print_dict(servers)
-    return
+    # helper.print_dict(servers)
     logger.info("Init")
 
     # check if previous rebuild is complete, if not exit this process.
@@ -19,7 +18,7 @@ def test():
     # HARDCODED last_rebuild_server
     last_rebuild_server = '192.168.50.168:27018' # shard 2 host 1
 
-    helper.check_replication_lag_of_previously_build_server(last_rebuild_server)
+    helper.check_replication_lag_of_previously_build_server(last_rebuild_server, servers)
 
     return
     server_disk_used_map = helper.get_max_disk_used_server(servers)
