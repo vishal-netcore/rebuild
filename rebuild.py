@@ -36,8 +36,8 @@ def test():
     print('max_disk_used_server', max_disk_used_server, end="\n\n")
     logger.info(f'Starting rebuild of {max_disk_used_server}.')
 
-    username = servers[max_disk_used_server]['credentials']['username']
-    password = servers[max_disk_used_server]['credentials']['password']
+    username = servers[max_disk_used_server]['username']
+    password = servers[max_disk_used_server]['password']
     host = servers[max_disk_used_server]['host'].split(':')[0]
     port = int(servers[max_disk_used_server]['host'].split(':')[1])
 
