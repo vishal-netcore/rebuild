@@ -5,6 +5,7 @@ from modules import config
 from modules import mongo
 
 def test():
+    print()
     # helper.print_dict(servers)
     logger.info("Init")
 
@@ -33,7 +34,7 @@ def test():
             max_disk_used_server = server
             break
 
-    print('max_disk_used_server', max_disk_used_server, end="\n\n")
+    print('max_disk_used_server', max_disk_used_server)
     logger.info(f'Starting rebuild of {max_disk_used_server}.')
 
     username = servers[max_disk_used_server]['username']
