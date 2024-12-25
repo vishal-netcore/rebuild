@@ -21,7 +21,18 @@ def test():
     helper.check_replication_lag_of_previously_build_server(last_rebuild_server, servers)
 
     server_disk_used_map = helper.get_max_disk_used_server(servers)
-    print('server_disk_used_map', server_disk_used_map, end="\n\n")
+
+    max_disk_used_server = None
+    for server, disk_used in server_disk_used_map.items():
+        result = helper.check_replication_lag_of_shard(server ,servers)
+
+        if not result:
+            logger.info(f'Server {server} with disk usage {disk_used} is experiencing replication lag, checking for the next server.')
+        else:
+            max_disk_used_server = server
+            break
+
+    print('max_disk_used_server', max_disk_used_server)
 
 def main():
     pass
