@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from logger import logger
+from .logger import logger
 
 
 def connect(username, password, host, port, is_direct_connection=False):
