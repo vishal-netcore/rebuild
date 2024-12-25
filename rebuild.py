@@ -1,6 +1,7 @@
 from modules.logger import logger
 from modules.config import servers
 from modules import helper
+from modules import config
 
 def test():
     logger.info("Init")
@@ -9,6 +10,7 @@ def test():
     server_disk_used_map = helper.get_max_disk_used_server(servers)
     print(server_disk_used_map)
 
+    print('path', config.config_data['log_path'])
     last_rebuild_server = helper.preprocessing()
 
     print('last_rebuild_server', last_rebuild_server)
