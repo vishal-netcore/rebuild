@@ -13,10 +13,10 @@ def test():
     # get the last rebuilt server and check if there is replication lag due to previous rebuild server,
     # if there is a lag exit else start rebuild.
     last_rebuild_server = helper.get_last_rebuilt_server(config.config_data['rebuild_status_file'])
-    print('last_rebuild_server', last_rebuild_server)
+    print('last_rebuild_server', last_rebuild_server, end="\n\n")
 
     server_disk_used_map = helper.get_max_disk_used_server(servers)
-    print('server_disk_used_map', server_disk_used_map)
+    print('server_disk_used_map', server_disk_used_map, end="\n\n")
 
 
 def main():
