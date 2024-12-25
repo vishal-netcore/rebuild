@@ -419,10 +419,14 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
 
 def get_id_by_server_name(servers, target_server):
     for key, val in servers.items():
-        print(key)
-        print(val)
-        print()
         if target_server in key:
             return val['_id']
 
 
+def update_servers_dict(username, password, host, port, servers):
+    client = connect(username, password, host, port)
+    replica_set_status = client.admin.command("replSetGetStatus")
+    members = replica_set_status["members"]
+
+    for member in members:
+        servers[member['name']].update(member)

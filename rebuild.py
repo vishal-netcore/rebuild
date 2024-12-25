@@ -42,7 +42,12 @@ def test():
     port = int(max_disk_used_server.split(':')[1])
 
     client = mongo.connect(username, password, host, port)
+    print('before', servers['max_disk_used_server'])
+    helper.update_servers_dict(username, password, host, port, servers)
+    print('after', servers['max_disk_used_server'])
+    return
     max_disk_used_server_id = helper.get_id_by_server_name(servers, max_disk_used_server)
+
     print('max_disk_used_server_id', max_disk_used_server_id)
 
 
