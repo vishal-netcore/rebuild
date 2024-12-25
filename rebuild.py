@@ -39,7 +39,7 @@ def test():
     username = server[max_disk_used_server]['credentials']['username']
     password = server[max_disk_used_server]['credentials']['password']
     host = server[max_disk_used_server]['host'].split(':')[0]
-    port = server[max_disk_used_server]['host'].split(':')[1]
+    port = int(server[max_disk_used_server]['host'].split(':')[1])
 
     client = mongo.connect(username, password, host, port)
 
