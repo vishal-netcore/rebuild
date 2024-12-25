@@ -388,8 +388,8 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
 
         # check if last rebuilt server is in STARTUP2 state
         # HARDCODED username and password
-        username = servers['last_rebuilt_server']['username']
-        password = servers['last_rebuilt_server']['password']
+        username = servers[last_rebuilt_server]['username']
+        password = servers[last_rebuilt_server]['password']
 
         print(username, password)
         return
