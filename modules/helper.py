@@ -94,32 +94,6 @@ def calculate_replication_lag(primary_optime, secondary_optime):
     return lag.total_seconds() * 1000
 
 
-def check_replication_lag_of_shard(mongo_host):
-    try:
-        tmp_client = connect(username, password, host, port, False)
-        # tmp_client = MongoClient(f'mongodb://root:jazzychess342@{mongo_host}')
-        replica_set_status = tmp_client.admin.command("replSetGetStatus")
-
-        primary_optime = None
-        for member in replica_set_status["members"]:
-            if member["stateStr"] == "PRIMARY":
-                primary_optime = member["optimeDate"]
-                break
-
-        for member in replica_set_status["members"]:
-            if member["stateStr"] == "SECONDARY":
-                secondary_optime = member["optimeDate"]
-                lag = calculate_replication_lag(primary_optime, secondary_optime)
-                logger.info(f'Replication lag for {member["name"]}: {lag} seconds.')
-                if lag != 0.0:
-                    return False
-    except Exception as e:
-        logger.error(f"Error while checking replication lag of shard from {mongo_host}: {e}")
-        exit(1)
-
-    return True
-
-
 def check_replication_lag_across_cluster(servers):
     try:
         shard_servers_map = {elem: [] for elem in shards}
@@ -377,6 +351,36 @@ def get_last_rebuilt_server(rebuild_status_file):
     return last_rebuilt_server
 
 
+def check_replication_lag_of_shard(server, servers):
+    try:
+        username = servers[server]['username']
+        password = servers[server]['password']
+        host = server.split(':')[0]
+        port = int(server.split(':')[1])
+
+        tmp_client = connect(username, password, host, port) #(f'mongodb://root:jazzychess342@{mongo_host}')
+        replica_set_status = tmp_client.admin.command("replSetGetStatus")
+
+        primary_optime = None
+        for member in replica_set_status["members"]:
+            if member["stateStr"] == "PRIMARY":
+                primary_optime = member["optimeDate"]
+                break
+
+        for member in replica_set_status["members"]:
+            if member["stateStr"] == "SECONDARY":
+                secondary_optime = member["optimeDate"]
+                lag = calculate_replication_lag(primary_optime, secondary_optime)
+                logger.info(f'Replication lag of {member["name"]} is {lag} seconds.')
+                if lag != 0.0:
+                    return False
+    except Exception as e:
+        logger.error(f"Error while checking replication lag of shard using {server}: {e}")
+        exit(1)
+
+    return True
+
+
 def check_replication_lag_of_previously_build_server(last_rebuilt_server, servers):
     """
     return a bool variable indicating whether to proceed with the rebuild not.
@@ -387,14 +391,11 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
             return True
 
         # check if last rebuilt server is in STARTUP2 state
-        # HARDCODED username and password
+        # if in STARTUP2 state exit, else proceed.
         username = servers[last_rebuilt_server]['username']
         password = servers[last_rebuilt_server]['password']
         host = last_rebuilt_server.split(':')[0]
         port = int(last_rebuilt_server.split(':')[1])
-
-        print(host, port)
-        return
 
         tmp_client = connect(username, password, host, port) #(f'mongodb://root:root@{last_rebuilt_server}')
         replica_set_status = tmp_client.admin.command("replSetGetStatus")
@@ -402,17 +403,18 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
 
         for member in members:
             if member['stateStr'] == 'STARTUP2':
-                # print(f'last_rebuilt_server {last_rebuilt_server} is in STARTUP2 state, exiting...')
-                logger.info(f'Last rebuilt server {last_rebuilt_server} is in "STARTUP2" state, exiting...')
-                exit(1)
+                logger.info(f'Last rebuilt server {last_rebuilt_server} is in "STARTUP2" state, terminating.')
+                sys.exit(0)
     except Exception as e:
         logger.error(f"Error while checking replication lag of previously rebuilt server: {e}")
         exit(1)
 
-    res = check_replication_lag_of_shard(last_rebuilt_server)
-    if res == True:
-        logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is zero, proceeding...')
+    # check replication lag of the shard
+    # if lag is zero proceed, else exit.
+    res = check_replication_lag_of_shard(last_rebuilt_server, servers)
+    if res:
+        logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is zero, proceeding.')
         return True
     else:
-        logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is not zero, exiting...')
+        logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is not zero, terminating...')
         exit(1)
