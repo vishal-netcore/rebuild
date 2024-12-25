@@ -280,7 +280,7 @@ def delete_directory(servers, max_disk_used_server): # args : server_ip/id
     #     print('delete failed: directory size is not equals to 4.0K')
 
 
-def preprocessing(folder_path=f"{config_data['log_path']}/logs"):
+def preprocessing(folder_path=f"{config_data['log_path']}"):
     try:
         current_date = datetime.now()
 
