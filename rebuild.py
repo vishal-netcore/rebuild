@@ -36,10 +36,10 @@ def test():
     print('max_disk_used_server', max_disk_used_server, end="\n\n")
     logger.info(f'Starting rebuild of {max_disk_used_server}.')
 
-    username = server[max_disk_used_server]['credentials']['username']
-    password = server[max_disk_used_server]['credentials']['password']
-    host = server[max_disk_used_server]['host'].split(':')[0]
-    port = int(server[max_disk_used_server]['host'].split(':')[1])
+    username = servers[max_disk_used_server]['credentials']['username']
+    password = servers[max_disk_used_server]['credentials']['password']
+    host = servers[max_disk_used_server]['host'].split(':')[0]
+    port = int(servers[max_disk_used_server]['host'].split(':')[1])
 
     client = mongo.connect(username, password, host, port)
 
