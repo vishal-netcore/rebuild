@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import fcntl
 import sys
 
+
 def print_dict(d, indent=0):
     for key, value in d.items():
         if isinstance(value, dict):
@@ -150,7 +151,7 @@ def swap_priority(client, target_id):  #target_id(server which needs to rebuilt/
                 target_member = member
 
         lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
-        lowest_priority_member['priority']
+            lowest_priority_member['priority']
         logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
 
         # for member in config_members:
@@ -305,7 +306,8 @@ def preprocessing(folder_path=f"{config_data['log_path']}"):
 
     return server_name
 
-## new and refactored below.
+
+# new and refactored functions below.
 def check_if_rebuild_is_complete(lock_file):
     try:
         with open(lock_file, 'w') as lf:
@@ -358,7 +360,7 @@ def check_replication_lag_of_shard(server, servers):
         host = server.split(':')[0]
         port = int(server.split(':')[1])
 
-        tmp_client = connect(username, password, host, port) #(f'mongodb://root:jazzychess342@{mongo_host}')
+        tmp_client = connect(username, password, host, port)  #(f'mongodb://root:jazzychess342@{mongo_host}')
         replica_set_status = tmp_client.admin.command("replSetGetStatus")
 
         primary_optime = None
@@ -383,12 +385,12 @@ def check_replication_lag_of_shard(server, servers):
 
 def check_replication_lag_of_previously_build_server(last_rebuilt_server, servers):
     """
-    return a bool variable indicating whether to proceed with the rebuild not.
+    process will terminate if replication lag is greater than 0.
     """
     try:
         if last_rebuilt_server == '':
             logger.info(f"No last rebuilt server exists, proceeding.")
-            return True
+            return
 
         # check if last rebuilt server is in STARTUP2 state
         # if in STARTUP2 state exit, else proceed.
@@ -397,7 +399,7 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
         host = last_rebuilt_server.split(':')[0]
         port = int(last_rebuilt_server.split(':')[1])
 
-        tmp_client = connect(username, password, host, port) #(f'mongodb://root:root@{last_rebuilt_server}')
+        tmp_client = connect(username, password, host, port)  #(f'mongodb://root:root@{last_rebuilt_server}')
         replica_set_status = tmp_client.admin.command("replSetGetStatus")
         members = replica_set_status["members"]
 
@@ -414,7 +416,9 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
     res = check_replication_lag_of_shard(last_rebuilt_server, servers)
     if res:
         logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is zero, proceeding.')
-        return True
+        return
     else:
         logger.info(f'Replication lag of previously rebuilt server {last_rebuilt_server} is not zero, terminating...')
         exit(1)
+
+

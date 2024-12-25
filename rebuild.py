@@ -18,13 +18,10 @@ def test():
     # HARDCODED last_rebuild_server
     last_rebuild_server = '192.168.50.168:27018' # shard 2 host 1
 
-    proceed = helper.check_replication_lag_of_previously_build_server(last_rebuild_server, servers)
-    print('proceed', proceed)
+    helper.check_replication_lag_of_previously_build_server(last_rebuild_server, servers)
 
-    return
     server_disk_used_map = helper.get_max_disk_used_server(servers)
     print('server_disk_used_map', server_disk_used_map, end="\n\n")
-
 
 def main():
     pass
