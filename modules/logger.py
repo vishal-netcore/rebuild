@@ -1,5 +1,6 @@
 import logging
 import yaml
+from datetime import datetime
 
 def load_path():
     with open("configs/config.yaml", "r") as file:
@@ -7,7 +8,7 @@ def load_path():
     return config.get("log_path", "/logs/rebuild.log")
 
 logging.basicConfig(
-    filename=load_path(),
+    filename=load_path() + "_" + datetime.now() + ".log",
     level=logging.DEBUG,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
