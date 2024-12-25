@@ -2,6 +2,7 @@ from modules.logger import logger
 from modules.config import servers
 from modules import helper
 from modules import config
+from modules import mongo
 
 def test():
     # helper.print_dict(servers)
@@ -32,7 +33,18 @@ def test():
             max_disk_used_server = server
             break
 
-    print('max_disk_used_server', max_disk_used_server)
+    print('max_disk_used_server', max_disk_used_server, end="\n\n")
+    logger.info(f'Starting rebuild of {max_disk_used_server}.')
+
+    username = server[max_disk_used_server]['credentials']['username']
+    password = server[max_disk_used_server]['credentials']['password']
+    host = server[max_disk_used_server]['host'].split(':')[0]
+    port = server[max_disk_used_server]['host'].split(':')[1]
+
+    client = mongo.connect(username, password, host, port)
+
+    print(client)
+
 
 def main():
     pass

@@ -387,6 +387,7 @@ def check_replication_lag_of_previously_build_server(last_rebuilt_server, server
     """
     process will terminate if replication lag is greater than 0.
     """
+    # TODO: implement 3 retires
     try:
         if last_rebuilt_server == '':
             logger.info(f"No last rebuilt server exists, proceeding.")
