@@ -7,7 +7,6 @@ def load_path():
         config = yaml.safe_load(file)
         log_path = config.get("log_path", "./logs/rebuild.log")
         log_path += "rebuild_" + datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".log"
-        print('log__path', log_path)
         return log_path
 
 logging.basicConfig(
