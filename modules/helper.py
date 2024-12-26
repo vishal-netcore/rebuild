@@ -307,7 +307,7 @@ def check_replication_lag_of_shard(server, servers):
                 secondary_optime = member["optimeDate"]
                 lag = calculate_replication_lag(primary_optime, secondary_optime)
                 logger.info(f'Replication lag of {member["name"]} is {lag} seconds.')
-                if lag != 0.0:
+                if lag > 5.0:
                     return False
     except Exception as e:
         logger.error(f"Error while checking replication lag of shard using {server}: {e}")
