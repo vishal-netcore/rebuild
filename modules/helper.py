@@ -410,12 +410,12 @@ def change_priority(servers, client, target_id):
                 else:
                     low_hardware.append(member)
 
-        if len(high_hardware) == 2:
-            high_hardware[0]["priority"] = 5
-            high_hardware[1]["priority"] = 4
-        elif len(high_hardware) == 1 and len(low_hardware) == 1:
-            high_hardware[0]["priority"] = 5
-            low_hardware[0]["priority"] = 4
+        # if len(high_hardware) == 2:
+        #     high_hardware[0]["priority"] = 5
+        #     high_hardware[1]["priority"] = 4
+        # elif len(high_hardware) == 1 and len(low_hardware) == 1:
+        #     high_hardware[0]["priority"] = 5
+        #     low_hardware[0]["priority"] = 4
 
         # for config_member in config_members:
         #     config_member.pop("stateStr", None)
