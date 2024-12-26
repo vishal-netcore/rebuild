@@ -417,9 +417,9 @@ def change_priority(servers, client, target_id):
             high_hardware[0]["priority"] = 5
             low_hardware[0]["priority"] = 4
 
-        for config_member in config_members:
-            config_member.pop("stateStr", None)
-            config_member.pop("server_hardware_configuration", None)
+        # for config_member in config_members:
+        #     config_member.pop("stateStr", None)
+        #     config_member.pop("server_hardware_configuration", None)
         print_dict(config_members)
         exit()
     except Exception as e:
