@@ -373,13 +373,7 @@ def update_servers_dict(username, password, host, port, servers):
 
 def change_priority(servers, client, target_id):
     """
-    I have a member replication set
-    one of them I need to stop for some time (with _id = target_id)
-    it can be either primary or secondary
-    before stopping I need to change its priority to the lowest
-    But I also need to make sure that other with high hardware configuration server should be make as primary by changing its priority
-    I have hardware configuration, priority, stateStr information in servers dict
-    complete the below function.
+    Adjusts the replication set priorities for MongoDB members based on their hardware configurations.
     """
     try:
         db = client.admin
@@ -387,16 +381,19 @@ def change_priority(servers, client, target_id):
         status_members = db.command("replSetGetStatus")['members']
         config_members = config['config']['members']
 
+        # Merge stateStr from replSetGetStatus into config_members
         for config_member in config_members:
             for status_member in status_members:
                 if status_member['name'] == config_member['host']:
                     config_member['stateStr'] = status_member['stateStr']
 
+        # Merge hardware configuration from servers dictionary into config_members
         for server_name, server_info in servers.items():
             for config_member in config_members:
                 if config_member['host'] == server_name:
                     config_member['server_hardware_configuration'] = server_info['server_hardware_configuration']
 
+        # Adjust priorities based on hardware configuration
         high_hardware = []
         low_hardware = []
 
@@ -409,6 +406,7 @@ def change_priority(servers, client, target_id):
                 else:
                     low_hardware.append(member)
 
+        # Assign priorities
         if len(high_hardware) == 2:
             high_hardware[0]["priority"] = 5
             high_hardware[1]["priority"] = 4
@@ -416,13 +414,17 @@ def change_priority(servers, client, target_id):
             high_hardware[0]["priority"] = 5
             low_hardware[0]["priority"] = 4
 
+        # Cleanup additional attributes
         for config_member in config_members:
             config_member.pop("stateStr", None)
             config_member.pop("server_hardware_configuration", None)
-        print_dict(config_members)
-        exit()
+
+        # Apply the updated configuration
+        config['config']['members'] = config_members
+        db.command({'replSetReconfig': config['config'], 'force': True})
+        print("Priority update completed.")
     except Exception as e:
-        print(e)
+        print(f"Error: {e}")
     #     lowest_priority_member = None
     #     lowest_priority = float('inf')
     #
