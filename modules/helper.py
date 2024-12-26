@@ -189,49 +189,6 @@ def delete_directory(servers, max_disk_used_server):  # args : server_ip/id
     #     print('delete failed: directory size is not equals to 4.0K')
 
 
-def swap_priority(client, target_id):  # target_id(server which needs to rebuilt/server having max disk usase)
-    """
-    get the member with the lowest priority
-    and swap priority with it
-    after swapping target will have the lowest priority and ready to rebuild
-    """
-    try:
-        db = client.admin
-        config = db.command('replSetGetConfig')
-
-        config_members = config['config']['members']
-
-        # print('config_members', config_members)
-
-        lowest_priority_member = None
-        lowest_priority = float('inf')
-
-        for member in config_members:
-            if member['priority'] < lowest_priority:
-                lowest_priority = member['priority']
-                lowest_priority_member = member
-            if member['_id'] == target_id:
-                target_member = member
-
-        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
-            lowest_priority_member['priority']
-        logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
-
-        # for member in config_members:
-        #     print("ID:", member['_id'], "Priority:", member['priority'])
-    except Exception as e:
-        logger.error(f"Error while swapping priority: {e}")
-        exit(1)
-
-    try:
-        result = db.command('replSetReconfig', config['config'], force=True)
-    except Exception as e:
-        logger.error(f"Error while replSetReconfig: {e}")
-        exit(1)
-
-    # print("ReplSetReconfig result:", result)
-
-
 # new and refactored functions below.
 def check_if_rebuild_is_complete(lock_file):
     try:
@@ -422,34 +379,9 @@ def change_priority(servers, client, target_id):
         # Apply the updated configuration
         config['config']['members'] = config_members
         db.command({'replSetReconfig': config['config'], 'force': True})
-        print("Priority update completed.")
+        logger.info("Changed priorities.")
     except Exception as e:
-        print(f"Error: {e}")
-    #     lowest_priority_member = None
-    #     lowest_priority = float('inf')
-    #
-    #     for member in config_members:
-    #         if member['priority'] < lowest_priority:
-    #             lowest_priority = member['priority']
-    #             lowest_priority_member = member
-    #         if member['_id'] == target_id:
-    #             target_member = member
-    #
-    #     lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
-    #         lowest_priority_member['priority']
-    #     logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
-    #
-    #     # for member in config_members:
-    #     #     print("ID:", member['_id'], "Priority:", member['priority'])
-    # except Exception as e:
-    #     logger.error(f"Error while swapping priority: {e}")
-    #     exit(1)
-    #
-    # try:
-    #     result = db.command('replSetReconfig', config['config'], force=True)
-    # except Exception as e:
-    #     logger.error(f"Error while replSetReconfig: {e}")
-    #     exit(1)
+        logger.info(f"Error: {e}")
 
 
 def resize_oplog(client, max_disk_used_server, oplog_size=400000.0):

@@ -66,6 +66,12 @@ def test():
     '''shutdown mongodb'''
     # helper.shutdown_mongodb(servers, max_disk_used_server)
 
+    '''shutdown mongodb'''
+
+    '''start mongodb'''
+
+    '''set sync from'''
+
 
 def main():
     pass
