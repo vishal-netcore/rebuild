@@ -55,7 +55,7 @@ def test():
     print('max_disk_used_server_id', max_disk_used_server_id)
 
     '''Make the primary as secondary and other secondary high configuration server as primary.'''
-    helper.change_priority(servers, client, max_disk_used_server_id)
+    # helper.change_priority(servers, client, max_disk_used_server_id)
     # logger.info('Waiting for priority change to get updated.')
     wait_time = 30  # seconds
     time.sleep(wait_time)
