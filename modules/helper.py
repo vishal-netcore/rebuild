@@ -120,59 +120,6 @@ def check_replication_lag_across_cluster(servers):
     return True
 
 
-def swap_priority(client, target_id):  #target_id(server which needs to rebuilt/server having max disk usase)
-    '''
-    get the member with lowest priority
-    and swap priority with it
-    after swapping target will have lowest priority and ready to rebuild 
-    '''
-    try:
-        db = client.admin
-        config = db.command('replSetGetConfig')
-
-        config_members = config['config']['members']
-
-        # print('config_members', config_members)
-
-        lowest_priority_member = None
-        lowest_priority = float('inf')
-
-        for member in config_members:
-            if member['priority'] < lowest_priority:
-                lowest_priority = member['priority']
-                lowest_priority_member = member
-            if member['_id'] == target_id:
-                target_member = member
-
-        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
-            lowest_priority_member['priority']
-        logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
-
-        # for member in config_members:
-        #     print("ID:", member['_id'], "Priority:", member['priority'])
-    except Exception as e:
-        logger.error(f"Error while swapping priority: {e}")
-        exit(1)
-
-    try:
-        result = db.command('replSetReconfig', config['config'], force=True)
-    except Exception as e:
-        logger.error(f"Error while replSetReconfig: {e}")
-        exit(1)
-
-    # print("ReplSetReconfig result:", result)
-
-
-def shutdown_mongodb(servers, max_disk_used_server):
-    try:
-        service_name = servers[max_disk_used_server]['service_name']
-        execute_shell_command(['systemctl', 'stop', f'{service_name}.service'], max_disk_used_server)
-    except Exception as e:
-        logger.error(f'error while stopping service {service_name}, {e}')
-        # print(f"Error: {e}")
-    logger.info(f'Stopped MongoDB on server {max_disk_used_server}, service: {service_name}.')
-
-
 def start_mongodb(servers, max_disk_used_server):
     try:
         service_name = servers[max_disk_used_server]['service_name']
@@ -181,22 +128,6 @@ def start_mongodb(servers, max_disk_used_server):
         logger.error(f'error while starting service {service_name}, {e}')
         # print(f"Error: {e}")
     logger.info(f'Started MongoDB on server {max_disk_used_server}, service: {service_name}.')
-
-
-def resize_oplog(client, max_disk_used_server, oplog_size=400000.0):
-    try:
-        client = connect(username, password, max_disk_used_server, port, False)
-        # client = MongoClient(f'mongodb://root:jazzychess342@{max_disk_used_server}')
-        admin_db = client.admin
-
-        result = admin_db.command({"replSetResizeOplog": 1, "size": oplog_size})
-        logger.info(f'Resized oplog size to {oplog_size}MB.')
-        # print("Oplog resize result:", result)
-
-        client.close()
-    except Exception as e:
-        logger.error(f"Error while resizing oplog from {max_disk_used_server}: {e}")
-        exit(1)
 
 
 def set_sync_from(servers, max_disk_used_server):  # args:
@@ -258,47 +189,47 @@ def delete_directory(servers, max_disk_used_server):  # args : server_ip/id
     #     print('delete failed: directory size is not equals to 4.0K')
 
 
-def preprocessing(folder_path=f"{config_data['log_path']}"):
+def swap_priority(client, target_id):  # target_id(server which needs to rebuilt/server having max disk usase)
+    """
+    get the member with the lowest priority
+    and swap priority with it
+    after swapping target will have the lowest priority and ready to rebuild
+    """
     try:
-        current_date = datetime.now()
+        db = client.admin
+        config = db.command('replSetGetConfig')
 
-        files = os.listdir(folder_path)
+        config_members = config['config']['members']
 
-        valid_files = [file for file in files if '-' in file]
+        # print('config_members', config_members)
 
-        if not valid_files:
-            return ""
+        lowest_priority_member = None
+        lowest_priority = float('inf')
 
-        latest_date = datetime.min
-        latest_file = ""
+        for member in config_members:
+            if member['priority'] < lowest_priority:
+                lowest_priority = member['priority']
+                lowest_priority_member = member
+            if member['_id'] == target_id:
+                target_member = member
 
-        for file in valid_files:
-            parts = file.split('__')
-            file_date_str = parts[0]
-            file_date = datetime.strptime(file_date_str, "%Y-%m-%d %H:%M:%S.%f")
+        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
+            lowest_priority_member['priority']
+        logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
 
-            if file_date > latest_date:
-                latest_date = file_date
-                latest_file = file
-
-            # Check if the file is one year old from the current date
-            try:
-                if current_date - file_date >= timedelta(days=365):
-                    file_path = os.path.join(folder_path, file)
-                    os.remove(file_path)
-                    logger.info(f'Deleted old file: {file}.')
-                    # print("Deleted old file:", file)
-            except Exception as e:
-                logger.info(f'Error while deleting log file: {file}')
-
-        server_name = latest_file.split('__')[1]
-
-        make_high_config_server_as_primary(server_name)
+        # for member in config_members:
+        #     print("ID:", member['_id'], "Priority:", member['priority'])
     except Exception as e:
-        logger.error(f"Error while preprocessing: {e}")
+        logger.error(f"Error while swapping priority: {e}")
         exit(1)
 
-    return server_name
+    try:
+        result = db.command('replSetReconfig', config['config'], force=True)
+    except Exception as e:
+        logger.error(f"Error while replSetReconfig: {e}")
+        exit(1)
+
+    # print("ReplSetReconfig result:", result)
 
 
 # new and refactored functions below.
@@ -345,6 +276,14 @@ def get_last_rebuilt_server(rebuild_status_file):
 
     logger.info(f"Last rebuilt server: {last_rebuilt_server}")
     return last_rebuilt_server
+
+
+def update_rebuild_status(rebuild_status_file, status, server_name):
+    """
+    updates the status in rebuild_status_file in current_datetime__server_name__status format
+    """
+    with open(rebuild_status_file, "a") as file:
+        file.write(f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}__{server_name}__{status}\n")
 
 
 def check_replication_lag_of_shard(server, servers):
@@ -430,3 +369,31 @@ def update_servers_dict(username, password, host, port, servers):
 
     for member in members:
         servers[member['name']].update(member)
+
+
+def change_priority(client, target_id):
+    pass
+
+
+def resize_oplog(client, max_disk_used_server, oplog_size=400000.0):
+    try:
+        admin_db = client.admin
+        admin_db.command({"replSetResizeOplog": 1, "size": oplog_size})
+        logger.info(f'Resized oplog size to {oplog_size}MB.')
+    except Exception as e:
+        logger.error(f"Error while resizing oplog using {max_disk_used_server}: {e}")
+        exit(1)
+
+
+def shutdown_mongodb(servers, max_disk_used_server):
+    service_name = None
+    try:
+        service_name = servers[max_disk_used_server]['service_name']
+        print(service_name)
+        exit()
+        execute_shell_command(['systemctl', 'stop', f'{service_name}.service'], max_disk_used_server)
+    except Exception as e:
+        logger.error(f'error while stopping service {service_name}, {e}')
+        # print(f"Error: {e}")
+    logger.info(f'Stopped MongoDB service, service: {service_name}.')
+
