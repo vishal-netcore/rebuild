@@ -394,8 +394,8 @@ def change_priority(servers, client, target_id):
 
         for server in servers:
             for config_member in config_members:
-                if config_member['name'] == server['host']:
-                    print(config_member['name'])
+                if config_member['host'] == server['host']:
+                    print(config_member['host'])
         # print(config_members)
         exit()
         lowest_priority_member = None
