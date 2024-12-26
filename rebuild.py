@@ -1,3 +1,5 @@
+import time
+
 from modules.logger import logger
 from modules.config import servers
 from modules import helper
@@ -53,15 +55,16 @@ def test():
     print('max_disk_used_server_id', max_disk_used_server_id)
 
     '''Make the primary as secondary and other secondary high configuration server as primary.'''
-    # helper.swap_priority(client, max_disk_used_server_id)
-    # logger.info('Waiting for priority swap to be updated...')
-    # time.sleep(30)
+    helper.change_priority(servers, client, max_disk_used_server_id)
+    # logger.info('Waiting for priority change to get updated.')
+    wait_time = 30  # seconds
+    time.sleep(wait_time)
 
     '''resize oplog to 400000mb.'''
     # helper.resize_oplog(client, max_disk_used_server)
 
     '''shutdown mongodb'''
-    helper.shutdown_mongodb(servers, max_disk_used_server)
+    # helper.shutdown_mongodb(servers, max_disk_used_server)
 
 
 def main():

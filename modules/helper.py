@@ -371,8 +371,47 @@ def update_servers_dict(username, password, host, port, servers):
         servers[member['name']].update(member)
 
 
-def change_priority(client, target_id):
-    pass
+def change_priority(servers, client, target_id):
+    """
+    I have a member replication set
+    one of them I need to stop for some time (with _id = target_id)
+    it can be either primary or secondary
+    before stopping I need to change its priority to the lowest
+    But I also need to make sure that other with high hardware configuration server should be make as primary by changing its priority
+    I have hardware configuration, priority, stateStr information in servers dict
+    complete the below function.
+    """
+    try:
+        db = client.admin
+        config = db.command('replSetGetConfig')
+        config_members = config['config']['members']
+        print(config_members)
+        return
+        lowest_priority_member = None
+        lowest_priority = float('inf')
+
+        for member in config_members:
+            if member['priority'] < lowest_priority:
+                lowest_priority = member['priority']
+                lowest_priority_member = member
+            if member['_id'] == target_id:
+                target_member = member
+
+        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
+            lowest_priority_member['priority']
+        logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
+
+        # for member in config_members:
+        #     print("ID:", member['_id'], "Priority:", member['priority'])
+    except Exception as e:
+        logger.error(f"Error while swapping priority: {e}")
+        exit(1)
+
+    try:
+        result = db.command('replSetReconfig', config['config'], force=True)
+    except Exception as e:
+        logger.error(f"Error while replSetReconfig: {e}")
+        exit(1)
 
 
 def resize_oplog(client, max_disk_used_server, oplog_size=400000.0):
