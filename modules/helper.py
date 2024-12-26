@@ -386,7 +386,7 @@ def change_priority(servers, client, target_id):
         config = db.command('replSetGetConfig')
         status = db.command("replSetGetStatus")
         members = config['config']['members']
-
+        print(status)
         for member in members:
             for server in status:
                 print(server['name'], member['host'])
