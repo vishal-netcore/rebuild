@@ -421,34 +421,33 @@ def change_priority(servers, client, target_id):
             config_member.pop("server_hardware_configuration", None)
         print_dict(config_members)
         exit()
-
-
-
-        lowest_priority_member = None
-        lowest_priority = float('inf')
-
-        for member in config_members:
-            if member['priority'] < lowest_priority:
-                lowest_priority = member['priority']
-                lowest_priority_member = member
-            if member['_id'] == target_id:
-                target_member = member
-
-        lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
-            lowest_priority_member['priority']
-        logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
-
-        # for member in config_members:
-        #     print("ID:", member['_id'], "Priority:", member['priority'])
     except Exception as e:
-        logger.error(f"Error while swapping priority: {e}")
-        exit(1)
-
-    try:
-        result = db.command('replSetReconfig', config['config'], force=True)
-    except Exception as e:
-        logger.error(f"Error while replSetReconfig: {e}")
-        exit(1)
+        print(e)
+    #     lowest_priority_member = None
+    #     lowest_priority = float('inf')
+    #
+    #     for member in config_members:
+    #         if member['priority'] < lowest_priority:
+    #             lowest_priority = member['priority']
+    #             lowest_priority_member = member
+    #         if member['_id'] == target_id:
+    #             target_member = member
+    #
+    #     lowest_priority_member['priority'], target_member['priority'] = target_member['priority'], \
+    #         lowest_priority_member['priority']
+    #     logger.info(f'Swapping priority between {lowest_priority_member["host"]} and {target_member["host"]}.')
+    #
+    #     # for member in config_members:
+    #     #     print("ID:", member['_id'], "Priority:", member['priority'])
+    # except Exception as e:
+    #     logger.error(f"Error while swapping priority: {e}")
+    #     exit(1)
+    #
+    # try:
+    #     result = db.command('replSetReconfig', config['config'], force=True)
+    # except Exception as e:
+    #     logger.error(f"Error while replSetReconfig: {e}")
+    #     exit(1)
 
 
 def resize_oplog(client, max_disk_used_server, oplog_size=400000.0):
