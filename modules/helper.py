@@ -384,12 +384,12 @@ def change_priority(servers, client, target_id):
     try:
         db = client.admin
         config = db.command('replSetGetConfig')
-        status = db.command("replSetGetStatus")
-        members = config['config']['members']
-        print(status)
-        for member in members:
-            for server in status:
-                print(server['name'], member['host'])
+        status_members = db.command("replSetGetStatus")['members']
+        config_members = config['config']['members']
+
+        for config_member in config_members:
+            for status_member in status_members:
+                print(status_member['name'], config_member['host'])
         return
         lowest_priority_member = None
         lowest_priority = float('inf')
