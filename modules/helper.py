@@ -397,29 +397,29 @@ def change_priority(servers, client, target_id):
                 if config_member['host'] == server_name:
                     config_member['server_hardware_configuration'] = server_info['server_hardware_configuration']
 
-        # high_hardware = []
-        # low_hardware = []
-        #
-        # for member in config_members:
-        #     if member["_id"] == target_id:
-        #         member["priority"] = 1
-        #     else:
-        #         if member["server_hardware_configuration"] == "HIGH":
-        #             high_hardware.append(member)
-        #         else:
-        #             low_hardware.append(member)
+        high_hardware = []
+        low_hardware = []
 
-        # if len(high_hardware) == 2:
-        #     high_hardware[0]["priority"] = 5
-        #     high_hardware[1]["priority"] = 4
-        # elif len(high_hardware) == 1 and len(low_hardware) == 1:
-        #     high_hardware[0]["priority"] = 5
-        #     low_hardware[0]["priority"] = 4
+        for member in config_members:
+            if member["_id"] == target_id:
+                member["priority"] = 1
+            else:
+                if member["server_hardware_configuration"] == "HIGH":
+                    high_hardware.append(member)
+                else:
+                    low_hardware.append(member)
 
-        # for config_member in config_members:
-        #     config_member.pop("stateStr", None)
-        #     config_member.pop("server_hardware_configuration", None)
-        # print_dict(config_members)
+        if len(high_hardware) == 2:
+            high_hardware[0]["priority"] = 5
+            high_hardware[1]["priority"] = 4
+        elif len(high_hardware) == 1 and len(low_hardware) == 1:
+            high_hardware[0]["priority"] = 5
+            low_hardware[0]["priority"] = 4
+
+        for config_member in config_members:
+            config_member.pop("stateStr", None)
+            config_member.pop("server_hardware_configuration", None)
+        print_dict(config_members)
         exit()
     except Exception as e:
         print(e)
