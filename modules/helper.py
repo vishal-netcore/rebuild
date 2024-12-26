@@ -387,10 +387,10 @@ def change_priority(servers, client, target_id):
         status_members = db.command("replSetGetStatus")['members']
         config_members = config['config']['members']
 
-        for config_member in config_members:
-            for status_member in status_members:
-                if status_member['name'] == config_member['host']:
-                    config_member['stateStr'] = status_member['stateStr']
+        # for config_member in config_members:
+        #     for status_member in status_members:
+        #         if status_member['name'] == config_member['host']:
+        #             config_member['stateStr'] = status_member['stateStr']
 
         # for server_name, server_info in servers.items():
         #     for config_member in config_members:
