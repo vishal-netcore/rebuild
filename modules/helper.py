@@ -382,10 +382,10 @@ def change_priority(servers, client, target_id):
     complete the below function.
     """
     try:
-        db = client.admin
-        config = db.command('replSetGetConfig')
-        status_members = db.command("replSetGetStatus")['members']
-        config_members = config['config']['members']
+        # db = client.admin
+        # config = db.command('replSetGetConfig')
+        # status_members = db.command("replSetGetStatus")['members']
+        # config_members = config['config']['members']
 
         # for config_member in config_members:
         #     for status_member in status_members:
@@ -419,7 +419,7 @@ def change_priority(servers, client, target_id):
         # for config_member in config_members:
         #     config_member.pop("stateStr", None)
         #     config_member.pop("server_hardware_configuration", None)
-        print_dict(config_members)
+        # print_dict(config_members)
         exit()
     except Exception as e:
         print(e)
