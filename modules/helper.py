@@ -391,7 +391,7 @@ def change_priority(servers, client, target_id):
             for status_member in status_members:
                 if status_member['name'] == config_member['host']:
                     config_member['stateStr'] = status_member['stateStr']
-
+        print('servers', servers)
         for server_name, server_info in servers.items():
             for config_member in config_members:
                 if config_member['host'] == server_name:
