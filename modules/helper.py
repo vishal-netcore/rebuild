@@ -397,18 +397,17 @@ def change_priority(servers, client, target_id):
                 if config_member['host'] == server_name:
                     config_member['server_hardware_configuration'] = server_info['server_hardware_configuration']
 
-        print('servers', servers)
-        high_hardware = []
-        low_hardware = []
-
-        for member in config_members:
-            if member["_id"] == target_id:
-                member["priority"] = 1
-            else:
-                if member["server_hardware_configuration"] == "HIGH":
-                    high_hardware.append(member)
-                else:
-                    low_hardware.append(member)
+        # high_hardware = []
+        # low_hardware = []
+        #
+        # for member in config_members:
+        #     if member["_id"] == target_id:
+        #         member["priority"] = 1
+        #     else:
+        #         if member["server_hardware_configuration"] == "HIGH":
+        #             high_hardware.append(member)
+        #         else:
+        #             low_hardware.append(member)
 
         # if len(high_hardware) == 2:
         #     high_hardware[0]["priority"] = 5
